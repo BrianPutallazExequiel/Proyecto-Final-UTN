@@ -9,7 +9,7 @@ import Slider from "./components/Slider";
 import Cart from "./components/Cart";
 import CategoryFilter from "./components/CategoryFilter";
 import SortDropdown from "./components/SortDropdown";
-import CartIcon from "./components/CartIcon";
+import AddProductForm from "./components/AddProductForm";
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import UpdateProduct from "./components/UpdateProduct";
 
@@ -24,7 +24,6 @@ function App() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const productsPerPage = 20;
 
   const handleAddToCart = (product) => {
     setCartItems((prevItems) => [...prevItems, product]);
@@ -36,6 +35,10 @@ function App() {
 
   const handleChangeText = (e) => {
     setSearchText(e.target.value);
+  };
+
+  const handleAddProduct = (newProduct) => {
+    setProducts((prevProducts) => [...prevProducts, newProduct]);
   };
 
   const handleDeleteProduct = (id) => {
@@ -60,8 +63,10 @@ function App() {
     }
   };
 
+
+
   useEffect(() => {
-      fetch("http://localhost:3000/products")
+    fetch("http://localhost:3000/products")
       .then((res) => res.json())
       .then((data) => {
         console.log(data)
@@ -104,7 +109,7 @@ function App() {
                 <Logo />
                 <SearchBar onChangeText={handleChangeText} />
                 <div className="right-group">
-                <Login />
+                  <Login />
                 </div>
               </div>
             </header>
@@ -127,24 +132,17 @@ function App() {
                     .map((p) => (
                       <ProductCard
                         p={p}
-                        key={p.id}
-                        onDelete={handleDeleteProduct}
-                        onEdit={handleEditProduct}
-                        onAddToCart={handleAddToCart}
+                        key={p.id}  // Asegúrate de proporcionar una clave única, asumiendo que p.id es único
+                        onDelete={() => handleDeleteProduct(p.id)}
+                        onEdit={(updatedProduct) => handleEditProduct(p.id, updatedProduct)}
+                        onAddToCart={() => handleAddToCart(p)}
                       />
                     ))}
                 </article>
-              </div>
 
-              {/* <div className="pagination">
-          <button onClick={goToPrevPage} disabled={currentPage === 1}>
-            Anterior
-          </button>
-          <button onClick={goToNextPage} disabled={currentPage === totalPages}>
-            Siguiente
-          </button>
-        </div> */}
+              </div>
             </main>
+            <AddProductForm onAddProduct={handleAddProduct} />
             <footer>
               <p>
                 Para más información contáctanos en las siguientes redes:{" "}
@@ -160,9 +158,9 @@ function App() {
                   twitter
                 </a>
               </p>
-              </footer>
+            </footer>
           </>
-        }/>
+        } />
         <Route path="/product/:id" element={<UpdateProduct />} />
       </Routes>
     </BrowserRouter>
